@@ -1,0 +1,16 @@
+Things I learned:
+	1. buffer overflow code -b switch to exclude certain shell code
+		a. in the exploit, the full byte range was excluded (-b '\x00...\xFF'), which forces msfvenom to encode the payload with x86 unicode, as specified by -e flag and appends a decoder stub to the beginning of it
+	2. check autologon creds in registry with powershell:
+		a. Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' | Select-Object DefaultUserName, DefaultPassword, AutoAdminLogon
+	3. Always check for password re-use with Administrator account
+	4. psexec.py uses SYSTEM privileges so even with Administrator creds will still be logged in as nt authority\system, not Administrator (SYSTEM is more powerful in the context of its own machine though so can change itself to the owner and access; could even do this to a file owned by a domain admin account on the machine)
+		a. need to take ownership of file to modify and set self as owner:
+			i. takeown /f "C:\Users\Administrator\Desktop\root.txt"
+			ii. dir /q "C:\Users\Administrator\Desktop\root.txt"
+			iii. icacls "C:\Users\Administrator\Desktop\root.txt" /grant SYSTEM:F
+
+changes:
+1. new page created under Initial foothold for Shell Generation, included msfvenom command (plus more in the future)
+2. check autologon creds with powershell command added to privesc\window.md
+3. access any file with SYSTEM privs, added to privesc\window.md

@@ -1,0 +1,4 @@
+TIL
+-updated SSRF methodology to account for webpage to PDF conversion
+-YAML deserialization in ruby
+-YAML deserialization in python from 0xdf
