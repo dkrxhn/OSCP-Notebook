@@ -1,0 +1,4 @@
+TIL
+- don't forget to check language pages for LFI and look at the source code when you do to see contents of a file
+- powershell script to test newfound creds in PrivEsc - Windows section
+- weaponize .chm files for privesc - windows section

