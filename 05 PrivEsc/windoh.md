@@ -1,3 +1,13 @@
+PowerUp.ps1
+- make sure to run in powershell
+- copy to target machine
+```
+. .\PowerUp.ps1
+```
+```
+Invoke-AllChecks
+```
+
 ```whoami /priv```
 - check any Se privs here https://github.com/gtworek/Priv2Admin
 ***SeImpersonatePrivilege***

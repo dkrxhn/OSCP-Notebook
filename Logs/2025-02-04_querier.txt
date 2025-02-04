@@ -1,0 +1,4 @@
+-nxc smb showed nothing for a null session, but smbclient did. make sure to try both
+-olevba to extract macro info from excel workbook .xlsm
+-use nc64.exe to get a shell with mssql once xp_cmdshell is enabled
+-PowerUp.ps1

