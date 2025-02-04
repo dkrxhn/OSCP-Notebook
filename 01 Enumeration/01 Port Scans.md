@@ -5,7 +5,7 @@ nmap -F ip
 
 most efficient with no loss of quality scan:
 ```
-sudo nmap -Pn -n 10.129.153.142 -sCV -p- --open -vvv
+sudo nmap -Pn -n 10.129.184.54 -sCV -p- --open -vvv
 ```
 
 if notice different ports between `-F` and quality scan:
