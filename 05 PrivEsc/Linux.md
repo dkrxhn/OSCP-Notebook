@@ -198,7 +198,11 @@ if port 80/443 open, check out:
 ```
 cd /var/www/html
 ```
-- use `ls` and `cat` to comb thru every file and subdirectory, especially if there's a `/internal` subdirectory/site not seen externally. may be creds embedded
+- use `ls` and `cat` to comb thru every file and subdirectory, especially if there's a `/internal` subdirectory/site not seen externally. may be creds embedded. look for any `conf` files or directories
+```
+grep -rEi 'password\s*=|db_pass|api_key|auth_token' /var/www/html --include="*.php"
+```
+- search for hardcoded passwords in .php files
 if running apache, check site configurations:
 ```
 cd /etc/apache2/sites-enabled

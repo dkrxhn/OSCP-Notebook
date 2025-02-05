@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "05 PrivEsc/windoh.md",
+                "file": "05 PrivEsc/Linux.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "windoh"
+              "title": "Linux"
             }
           }
         ],
@@ -68,7 +68,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "steg",
+                "query": "port forward",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -182,6 +182,13 @@
   },
   "active": "9ee44bbdc1535470",
   "lastOpenFiles": [
+    "06 Post Exploitation/transferring files.md",
+    "05 PrivEsc/Linux.md",
+    "01 Enumeration/MySQL 3306.md",
+    "04 Stabilizing Shell, Searching & Transferring Files/03.01 Stabilizing Shell.md",
+    "01 Enumeration/02 Fuzzing.md",
+    "01 Enumeration/01 Port Scans.md",
+    "05 PrivEsc/windoh.md",
     "Logs/2025-02-04_querier.txt",
     "Logs/New Text Document.txt",
     "Logs/New folder",
@@ -193,12 +200,8 @@
     "Pasted image 20250201152705.png",
     "02 Windowss/04 SMB 139,445.md",
     "01 Enumeration/SMB 139 445.md",
-    "06 Post Exploitation/transferring files.md",
-    "05 PrivEsc/windoh.md",
     "02 Windowss/Winrm 5985,5986.md",
     "06 Post Exploitation/Hash Cracking.md",
-    "01 Enumeration/MySQL 3306.md",
-    "01 Enumeration/01 Port Scans.md",
     "02 Windowss/03 low-level creds.md",
     "06 Post Exploitation/Bloodhound.md"
   ]
