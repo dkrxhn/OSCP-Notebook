@@ -1,0 +1,8 @@
+giddy TIL:
+-SQL injection with dirtree command to get ntlm hash
+
+Silver Platter TIL:
+-fuzz 8080 http-proxy
+-cewl to generate passwords from website
+-keep an eye out for IDORs when reading messages on a website
+-(adm) with id command allows for viewing of /var/log. run grep -iR tyler from there to find possible creds
