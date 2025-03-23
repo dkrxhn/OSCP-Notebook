@@ -1,0 +1,6 @@
+TIL
+-using smbclient with shares that have a space in the name (need \ to escape, doesn't work for smbclient.py
+-corrupted .xlsx can sometimes be unzipped and examined
+-powershell command to search for config files, excluding default windows OS folders
+-exploiting writeowner to get user hash
+-use hash with ESC8 shadow credentials

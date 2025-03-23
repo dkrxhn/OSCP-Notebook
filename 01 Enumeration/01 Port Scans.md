@@ -3,9 +3,9 @@ Quick nmap scan:
 nmap -F ip
 ```
 
-most efficient with no loss of quality scan:
+#### most efficient with no loss of quality scan:
 ```
-sudo nmap -Pn -n 10.10.21.22 -sCV -p- --open -vvv
+sudo nmap -Pn -n 10.10.11.51 -sCV -p- --open -vvv
 ```
 
 if notice different ports between `-F` and quality scan:
@@ -24,7 +24,7 @@ sudo nmap -p 22,80 -sCV precious.htb -vvv
 ```
 - might find other things such as .git repositories, etc
 
-quick UDP scan
+#### quick UDP scan
 ```
 sudo nmap -sU --top-ports 10 10.129.224.93
 ```

