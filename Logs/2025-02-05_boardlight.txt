@@ -1,3 +1,0 @@
--command to search hardcoded creds in /var/www/html:
-	-grep -rEi 'password\s*=|db_pass|api_key|auth_token' /var/www/html --include="*.php"
--Desktop, Downloads, Pictures suggest GUI desktop environment installed. look for exploits related to that

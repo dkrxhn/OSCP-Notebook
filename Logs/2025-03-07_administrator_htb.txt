@@ -1,6 +1,0 @@
-TIL:
--use nxc to bruteforce users and collect bloodhound data
--Check first degree outbound controls of each user in bloodhound
--PowerView.ps1 commands
--bloodyAD commands
--targetedkerberoast attack

