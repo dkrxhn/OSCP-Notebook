@@ -2,7 +2,7 @@ hMailServer (appear on port 587 SMTP on nmap scan)
 Apache James (4555 rsip or james-admin, 119 nntp)
 
 ```
-nc -vn 10.129.34.217 25
+nc -vn 192.168.135.42 25
 ```
 - get some info about SMTP server running
 

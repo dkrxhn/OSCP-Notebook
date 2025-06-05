@@ -27,16 +27,58 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "06 Post Exploitation/Bloodhound.md",
+                "file": "01 Enumeration/Ports & Services/SQL/MySQL 3306.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Bloodhound"
+              "title": "MySQL 3306"
+            }
+          },
+          {
+            "id": "3aaa0356b13abf64",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "01 Enumeration/Methodology/03 HTTP 80 OR HTTPS 443.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "03 HTTP 80 OR HTTPS 443"
+            }
+          },
+          {
+            "id": "1279af0ab2f1dac1",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "05 PrivEsc/AD.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "AD"
+            }
+          },
+          {
+            "id": "36d9311ec5773824",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "05 PrivEsc/AD.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "AD"
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -68,7 +110,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "netexec  winrm",
+                "query": "/etc/passwd",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -180,48 +222,48 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "9ee44bbdc1535470",
+  "active": "1279af0ab2f1dac1",
   "lastOpenFiles": [
-    "01 Enumeration/Ports & Services/SQL/NoSQL 6379.md",
-    "Assets/Attachments/Pasted image 20250404160719.png",
-    "Assets/Attachments/Pasted image 20250404160659.png",
-    "Assets/Attachments/Pasted image 20250404155241.png",
-    "06 Post Exploitation/Bloodhound.md",
-    "03 Initial Foothold/Shell Generation.md",
-    "Assets/Attachments/Pasted image 20250404154050.png",
-    "Assets/Attachments/Pasted image 20250404153941.png",
-    "Assets/Attachments/Pasted image 20250404153731.png",
-    "Assets/Attachments/Pasted image 20250404152856.png",
-    "04 Stabilizing Shell, Searching & Transferring Files/transferring files.md",
-    "01 Enumeration/Methodology/03 HTTP 80 OR HTTPS 443.md",
-    "01 Enumeration/Methodology/02 Fuzzing.md",
-    "01 Enumeration/Methodology/01 Port Scans.md",
-    "Report/Screenshots required for report.md",
-    "ESC9.md",
-    "06 Post Exploitation/Spraying & Enumerating AD.md",
     "05 PrivEsc/windoh.md",
-    "02 Windowss/Ports/MSSQL 1433.md",
-    "02 Windowss/Methodology/02 Have potential users, need pw.md",
-    "02 Windowss/Methodology/01 No Creds.md",
     "05 PrivEsc/AD.md",
-    "01 Enumeration/Ports & Services/SQL/sqlite.md",
-    "04 Stabilizing Shell, Searching & Transferring Files/Searching for flags.md",
+    "08 Code Analysis/vim.md",
+    "05 PrivEsc/Linux.md",
+    "Assets/Attachments/Pasted image 20250604105050.png",
+    "Assets/Attachments/Pasted image 20250604104753.png",
+    "01 Enumeration/Ports & Services/SQL/MySQL 3306.md",
     "04 Stabilizing Shell, Searching & Transferring Files/Stabilizing Shell.md",
+    "01 Enumeration/Methodology/03 HTTP 80 OR HTTPS 443.md",
+    "Assets/Attachments/Pasted image 20250603115432.png",
+    "Assets/Attachments/Pasted image 20250603115345.png",
+    "06 Post Exploitation/Spraying & Enumerating AD.md",
     "02 Windowss/Ports/Kerberos 88.md",
-    "06 Post Exploitation/Hash Cracking.md",
+    "03 Initial Foothold/Bloodhound.md",
     "02 Windowss/Ports/04 SMB 139,445.md",
-    "02 Windowss/Methodology/03 low-level creds.md",
-    "02 Windowss/Ports/DNS 53.md",
     "02 Windowss/Ports/06 LDAP 389,636,3268.md",
-    "Assets/Attachments/Pasted image 20250325140633.png",
+    "02 Windowss/Methodology/03 low-level creds.md",
+    "02 Windowss/Ports/Winrm 5985,5986.md",
+    "02 Windowss/Methodology/02 Have potential users, need pw.md",
+    "01 Enumeration/Methodology/01 Port Scans.md",
+    "02 Windowss/Methodology/01 No Creds.md",
+    "01 Enumeration/Methodology/04 SNMP 161.md",
+    "04 Stabilizing Shell, Searching & Transferring Files/transferring files.md",
+    "01 Enumeration/Ports & Services/SSH 22.md",
+    "01 Enumeration/Ports & Services/FTP 21.md",
+    "03 Initial Foothold/Bruteforcing & Wordlist generation.md",
+    "01 Enumeration/File Read.md",
+    "08 Code Analysis/File inclusion LFI RFI.md",
     "02 Windowss/Ports/05 RPC 135.md",
+    "Assets/Attachments/Pasted image 20250519183159.png",
+    "Assets/Attachments/Pasted image 20250519183106.png",
+    "Assets/Attachments/Pasted image 20250519182907.png",
+    "Assets/Attachments/Pasted image 20250519182805.png",
+    "Assets/Attachments/Pasted image 20250519182725.png",
+    "Assets/Attachments/Pasted image 20250519182636.png",
     "02 Windowss/Ports",
     "02 Windowss/Methodology",
     "01 Enumeration/Ports & Services",
     "01 Enumeration/Methodology",
     "01 Enumeration/Ports & Services/SQL",
-    "Assets/Attachments/Pasted image 20250325084757.png",
-    "Assets/Attachments/Pasted image 20250325084724.png",
     "Logs/2025-03-24_certified_htb.txt",
     "Logs/New Text Document.txt",
     "Logs/2025_03_21_EscapeTwo.txt",

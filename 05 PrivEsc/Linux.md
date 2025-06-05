@@ -27,6 +27,7 @@ sudo -l
 		- switch to scriptmanager user
 	- or if (ALL : ALL) ALL, can switch to root
 		- `sudo -u root /bin/bash`
+		- `sudo su`
 
 ### SUID
 ```
@@ -98,7 +99,7 @@ getcap -r / 2>/dev/null | grep cap_setuid+ep
 
 list all directories owned by a specific user:
 ```
-find / -type d -user jimmy 2>/dev/null | xargs -I {} ls -ld {}
+find / -type d -user patrick 2>/dev/null | xargs -I {} ls -ld {}
 ```
 - useful when connecting with new creds, seeing what new access was acquired
 ### search for hidden files
@@ -130,9 +131,18 @@ ls -laR
 ```
 cat /etc/passwd
 ```
-check `/etc` and `/var/log` for usernames:
+check if `/etc/passwd` is writable
 ```
-grep -ril "joanna" /etc /var/log 2>/dev/null
+ls -la /etc/passwd
+```
+- linpeas will also show:
+![[Pasted image 20250604104753.png]]
+- if writable, edit `/etc/passwd` to replace x in root will output of `openssl passwd password123` to set root password as 'password123'
+![[Pasted image 20250604105050.png]]
+
+- check `/etc` and `/var/log` for usernames:
+```
+grep -ril "patrick" /etc /var/log 2>/dev/null
 ```
 try to list password hashes:
 ```
@@ -189,14 +199,14 @@ ss -anp
 
 ### Cron Jobs
 ```
+cat /etc/crontab
+```
+- system-wide crontabs 
+```
 crontab -l
 ```
 - list cron jobs of current user
 - low-priv user sometimes have perms to run `sudo crontab -l` to see root cron jobs
-```
-cat /etc/crontab
-```
-- system-wide crontabs 
 ```
 ls -lah /etc/cron*
 ```

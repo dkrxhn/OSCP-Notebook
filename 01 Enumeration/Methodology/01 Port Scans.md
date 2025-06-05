@@ -4,8 +4,9 @@ nmap -F ip
 ```
 #### most efficient with no loss of quality scan:
 ```bash
-sudo nmap -Pn -n 10.10.183.200 -sCV -p- --open -vvv
+sudo nmap -Pn -n 192.168.135.42 -sCV -p- --open -vvv
 ```
+
 ###### if notice different ports between `-F` and quality scan:
 ```
 nmap -p- --min-rate 10000 10.129.249.105 -vvv

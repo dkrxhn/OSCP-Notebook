@@ -1,6 +1,6 @@
 Feroxbuster:
 ```
-feroxbuster -u http://10.10.21.22 -w /usr/share/wordlists/dirb/common.txt -n
+feroxbuster -u http://10.10.30.203 -w /usr/share/wordlists/dirb/common.txt -n
 ```
 - quickie (less than a minute)
 ```

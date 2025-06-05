@@ -43,3 +43,9 @@ if jpg, try `strings` or bruteforce with stegseek
 ```
 stegseek image.jpg /usr/share/wordlists/rockyou.txt
 ```
+
+#### 7z
+```
+7z x wapt-backup-sunday.7z
+```
+- `x` extract with full path

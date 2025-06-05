@@ -70,5 +70,26 @@ Rubeus.exe ptt /ticket:YIIEjAYGKwYBB...
 ```
 
 
-
-
+#### SSH permission denied gssapi-with-mic error
+![[Pasted image 20250423154335.png]]
+- got ticket but SSH fails with creds
+```
+sudo ntpdate frizzdc.frizz.htb
+```
+```
+getTGT.py frizz.htb/f.frizzle:'Jenni_Luvs_Magic23' -dc-ip frizzdc.frizz.htb
+```
+```
+export KRB5CCNAME=f.frizzle.ccache
+```
+![[Pasted image 20250423154451.png]]
+- `kinit` works
+```
+kinit f.frizzle@FRIZZ.HTB
+```
+```
+klist
+```
+```
+ssh f.frizzle@frizz.htb -K
+```

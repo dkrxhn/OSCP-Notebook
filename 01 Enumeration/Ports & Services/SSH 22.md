@@ -34,15 +34,21 @@ md5sum authorized_keys
 ---
 #### Generate ssh key pair
 ```
-ssh-keygen -t ed25519 -f ./id_ed25519
+ssh-keygen -t rsa -f ./dank_rsa
 ```
-- key will be saved as `id_ed25519` (private key) and `id_ed25519.pub` (public key) in the current directory (`./`)
-- upload `id_ed25519.pub` to target machine I want to SSH into
-	- or just copy the contents to the `authorized_keys` file on remote machine:
+- key will be saved as `dank_rsa` (private key) and `dank_rsa.pub` (public key) in the current directory (`./`)
+- rename `dank_rsa.pub` as `authorized_keys` and upload to target machine in `~/.ssh/` folder on the machine I want to SSH into
 ```
-cat id_ed25519.pub
+ssh user_on_target_machine@192.168.198.249 -p 25022 -i dank_rsa
 ```
-- on local machine to copy contents for below command
+- user must be on target machine in the home folder that contains .ssh
+- `-p` for alternate port (without `-p` default is 22)
+##### If already connected, just copy contents of .pub
+copying the contents to the `authorized_keys` file on remote machine:
+```
+cat dank_rsa.pub
+```
+- copy entire output and use in `echo` command below
 on remote machine in the `/home/username` directory:
 ```
 mkdir .ssh && cd .ssh
@@ -105,6 +111,10 @@ nxc ssh ip -u user -p pass
 hydra -l offsec -P /usr/share/wordlists/rockyou.txt ssh://192.168.203.122 -V
 ```
 
+```
+hydra -l alfredo -e nsr 192.168.152.249 ssh
+```
+- checks null passwords, username as password, and reverse of username as password
 ---
 #### ssh tunneling aka port forwarding:
 ```

